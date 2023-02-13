@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-internal class Program
+internal class UDPClient
 {
     private static void Main(string[] args)
     {
@@ -11,14 +11,14 @@ internal class Program
 
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-        IPAddress broadcast = IPAddress.Parse("193.169.0.0");
+        IPAddress broadcast = IPAddress.Parse("127.0.0.1");
         Console.WriteLine("Enter message to send to broadcast address");
         var message = Console.ReadLine();
 
         while (message != string.Empty)
         {
             byte[] sendbuf = Encoding.ASCII.GetBytes(message);
-            IPEndPoint ep = new IPEndPoint(broadcast, 11000);
+            IPEndPoint ep = new IPEndPoint(broadcast, 80);
 
             s.SendTo(sendbuf, ep);
 
