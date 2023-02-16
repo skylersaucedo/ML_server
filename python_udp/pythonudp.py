@@ -1,8 +1,6 @@
 ﻿"""
-
 DL - Thread UNET model. 
 7 Classes:
-
     1. not pipe
     2. clean
     3. dent
@@ -10,23 +8,18 @@ DL - Thread UNET model.
     5. scratch
     6. paint
     7. debris
-
 Using model: UNET_256x256_20nov_2022_final.hdf5
-
 12/15 - updated model "C:/Users/TSI/Desktop/UNET_256x256_15dec_2022.h5"
 12/19 - defect detector, optimized for runtime
       - prediction made. Total elapsed time in seconds,  68.8836419582367
-
 12/20 - prediction made. Total elapsed time in seconds,  17.010241985321045 - HMI
       - prediction made. Total elapsed time in seconds,  16.02392268180847 - HMI updated.
 12/28 - updating model with UNET ensemble of weighted models with various backbones.
       - note: need pip install segmentation-models for this approach
       - Model backbones: Resnet, InceptionV3, VGG
       - each model makes a prediction, then we combine predictions to get highest mIOU peroformance.
-
 12/29 - Ensembeled UNET models greatly improved defect detector performance. Need to reduce run time, now it is 30-45 seconds. 
 01/30 - Added DBSCAN, removed object det algo, 12.5 second prediction time.
-
 """
 #ROOT  = r"C:\Users\TSI\Desktop"
 
@@ -142,7 +135,6 @@ def defectDetector(image_path, mdl_path, defects_path):
     """
     1/13/23 - most current method.
     1/26/23 - adding dbscan clustering technique to reduce number of defects
-
     """
     
     lst_defects = []
@@ -233,26 +225,36 @@ def main():
     
     # make this listen for signal to make defects
     #image_path = sys.argv[1]
-    #mdl_path = sys.argv[2]
-    #defects_path = sys.argv[3]
+    mdl_path =r'C:\Users\Administrator\Desktop\feb16-udpstuff\UNET_6100imgs_25e_32b__Jan22b.h5'
+    defects_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\defect_list_thread.csv'
     udp_ip = "127.0.0.1"
     udp_port = 80
-    
+
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    s.bind((udp_ip, udp_port))
-
+    
     while True:
+        s.bind((udp_ip, udp_port))
 
         data,addr = s.recvfrom(1024)
-        print("message received!")
-        #image_path = data
+        #print("message received!")
 
-        result = "GOT THE SIGNAL! ::" + str(data)
+        if len(data) > 0:
             
-        #result, df = defectDetector(image_path, mdl_path, defects_path)
+            #image_path = data
+            #result = str(data)
 
-        return result
+            image_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\thread_clean_warmup_gpu.jpg'
+            print('sample image path: ', image_path)
+
+            start = time.perf_counter()
+
+            result, df = defectDetector(image_path, mdl_path, defects_path)
+            s.close()
+            
+            stop = time.perf_counter()
+            delta = stop - start
+            outmessage = "elapsed time: " + str(delta)
+            return outmessage
 
 
 if __name__ == "__main__":

@@ -39,15 +39,25 @@ public class Program
         var errors = "NA";
         var results = "NA";
 
-        using (var process = Process.Start(psi))
+        while (true)
         {
-            errors = process.StandardError.ReadToEnd();
-            results = process.StandardOutput.ReadToEnd();
+            using (var process = Process.Start(psi))
+            {
+                errors = process.StandardError.ReadToEnd();
+                results = process.StandardOutput.ReadToEnd();
+            }
+
+            //string[] rawMessage = errors.Split("b");
+
+            if (errors != "NA")
+            {
+                string output = errors;
+                Console.WriteLine($"{output}");
+            }
+
         }
 
-        Console.WriteLine($"built the exe results: {results}!");
-
-        Console.WriteLine($"built the exe errors: {errors}!");
+       
 
 
     }
