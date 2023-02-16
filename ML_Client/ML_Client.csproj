@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ML_server\ML_Server.csproj" />
+  </ItemGroup>
+
 </Project>

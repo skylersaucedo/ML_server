@@ -8,9 +8,16 @@ using System.Threading.Tasks;
 
 namespace ML_server
 {
-    class UDPListener
+    public class UDPListener
     {
         private const int listenPort = 80;
+
+        public void initalizeListener()
+        {
+            // check if this works!
+
+            StartListener();
+        }
 
         public static void StartListener()
         {
