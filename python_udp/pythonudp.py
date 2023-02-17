@@ -184,7 +184,7 @@ def defectDetector(image_path, mdl_path, defects_path):
     # --------- adding DBscan here
 
     bol_clustering = True
-    bol_limit_size = True
+    bol_limit_size = False
     max_n_defects = 25 # only show 25 top defects
 
     if bol_clustering:
@@ -243,7 +243,9 @@ def main():
             #image_path = data
             #result = str(data)
 
-            image_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\thread_clean_warmup_gpu.jpg'
+            image_path = data.decode("utf-8") 
+            
+            #image_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\thread_clean_warmup_gpu.jpg'
             print('sample image path: ', image_path)
 
             start = time.perf_counter()
@@ -251,9 +253,11 @@ def main():
             result, df = defectDetector(image_path, mdl_path, defects_path)
             s.close()
             
+            num_defects = len(df)
+
             stop = time.perf_counter()
             delta = stop - start
-            outmessage = "elapsed time: " + str(delta)
+            outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(num_defects) + ", path: " + image_path
             return outmessage
 
 

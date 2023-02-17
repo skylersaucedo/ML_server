@@ -1,5 +1,6 @@
 ﻿using ML_server;
 using System;
+using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -25,18 +26,26 @@ namespace ML_Client
             
             string imgwarmuppath = Path.Combine(folderpath, "thread_clean_warmup_gpu.jpg");
             string imgpath = Path.Combine(folderpath, "tempImage.jpg");
+            string imgpathbug = Path.Combine(folderpath, "thread_bug.jpg");
+            string imgpathscratches = Path.Combine(folderpath, "thread_bug.jpg");
 
-            string[] imagepaths = { imgwarmuppath, imgpath, imgpath };
+            string[] imagepaths = {
+                imgwarmuppath, imgpath, imgpathbug,
+                imgpathscratches, imgpathbug, imgwarmuppath,
+                imgpath, imgpathbug, imgpathscratches
+            };
+
             string message = "";
-
             int cnt = 0;
+
+            bool isNose = true;
+
 
             foreach (string img in imagepaths)
             {
-                message = img;
+                message = img+"*" + isNose.ToString();
                 Console.WriteLine($"sending message:  {img}");
                 System.Threading.Thread.Sleep(5000);
-
 
                 while (message != string.Empty && message != null)
                 {
@@ -64,11 +73,7 @@ namespace ML_Client
                 {
                     System.Threading.Thread.Sleep(30000);
                 }
-
             }
-
-
-
         }
         public static void Main(string[] args)
         {
@@ -77,5 +82,4 @@ namespace ML_Client
             Console.ReadLine();
         }
     }
-
 }
