@@ -40,10 +40,11 @@ namespace ML_Client
 
             bool isNose = true;
 
-
             foreach (string img in imagepaths)
             {
                 message = img+"*" + isNose.ToString();
+                //message = img;
+
                 Console.WriteLine($"sending message:  {img}");
                 System.Threading.Thread.Sleep(5000);
 

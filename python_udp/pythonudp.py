@@ -240,10 +240,12 @@ def main():
 
         if len(data) > 0:
             
-            #image_path = data
-            #result = str(data)
+            themessage = data.decode("utf-8")
+            m = themessage.split('*')
 
-            image_path = data.decode("utf-8") 
+            image_path = m[0]
+            isNose = m[1]
+
             
             #image_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\thread_clean_warmup_gpu.jpg'
             print('sample image path: ', image_path)
@@ -257,7 +259,10 @@ def main():
 
             stop = time.perf_counter()
             delta = stop - start
-            outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(num_defects) + ", path: " + image_path
+            outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(num_defects) + ", path: " + image_path + " , nose: " + str(isNose)
+            
+            plot_defects(image_path, df, image_path)
+
             return outmessage
 
 
