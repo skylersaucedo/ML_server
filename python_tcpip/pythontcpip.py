@@ -224,25 +224,19 @@ def defectDetector(image_path, mdl_path, defects_path):
 def main():
     
     # SERVER make this listen for signal to make defects
-    #image_path = sys.argv[1]
+
     mdl_path =r'C:\Users\Administrator\Desktop\feb16-udpstuff\UNET_6100imgs_25e_32b__Jan22b.h5'
-    defects_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\defect_list_thread.csv'
+    csvs_path = r'C:\Users\Administrator\Desktop\feb23csvs'
     _ip = "127.0.0.1"
     _port = 80
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((_ip, _port))
     s.listen()
-    print("listening - server is listening for client")
 
     while True:
-        print('SERVER - waiting new connection!')
-        conn, addr = s.accept()
-        print('SERVER - new connection!')
-          
-        print("SERVER - waiting message received!")
+        conn, addr = s.accept()          
         data = conn.recv(1024)
-        print("SERVER - message received!")
 
         if len(data) > 0:
             
@@ -252,32 +246,21 @@ def main():
             image_path = m[0]
             isNose = m[1]
 
-            #image_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\thread_clean_warmup_gpu.jpg'
-            print('SERVER - sample image path: ', image_path)
-
-
             start = time.perf_counter()
-
+            time_str = time.strftime("%Y%m%d%H%M%S")
+            defects_path = os.path.join(csvs_path, time_str + "defects.csv")
             result, df = defectDetector(image_path, mdl_path, defects_path)
-            #s.close()
-            
-            num_defects = len(df)
-
+            n_defects = len(df)
             stop = time.perf_counter()
             delta = stop - start
-            outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(num_defects) + ", path: " + image_path + " , nose: " + str(isNose)
+            outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(n_defects) + ", path: " + image_path + " , nose: " + str(isNose) + " , csv: " + defects_path
             
             #plot_defects(image_path, df, image_path)
+
             # transfer complete
-            
-            #conn.send(outmessage.encode("utf-8"))
-            # done, do the next one...
-            #
-
+                       
+            conn.send(outmessage.encode("utf-8"))
             conn.send("<|ACK|>".encode("utf-8"))
-
-            # return outmessage
-
 
 if __name__ == "__main__":
     sys.exit(main())

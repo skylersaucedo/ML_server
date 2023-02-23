@@ -40,21 +40,6 @@ public class Program
             {
                 errors = p.StandardError.ReadToEnd();
             }
-
-            if (errors != "NA")
-            {
-                string[] parsedout = errors.Split("*");
-                if (parsedout.Length > 1)
-                {
-                    Console.WriteLine($"{parsedout[1]}");
-                }
-
-                else
-                {
-                    Console.WriteLine($"{parsedout[0]}");
-                }
-                
-            }
         }
     }
 
