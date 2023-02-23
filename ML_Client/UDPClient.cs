@@ -85,8 +85,7 @@ namespace ML_Client
         public static async Task Main(string[] args)
         {
             IPEndPoint ipEndPoint = new(IPAddress.Parse("127.0.0.1"), 80);
-            using Socket client = new(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            await client.ConnectAsync(ipEndPoint);
+
 
             string folderpath = "C:\\Users\\Administrator\\Desktop\\feb16-udpstuff";
 
@@ -101,8 +100,6 @@ namespace ML_Client
                 imgpath, imgpathbug, imgpathscratches
             };
 
-            int cnt = 0;
-
             bool isNose = true;
 
             // now connect to ML server with these
@@ -115,7 +112,14 @@ namespace ML_Client
 
                 while (message != string.Empty && message != null)
                 {
-                    await Task.WhenAll(maketcpClientAsync(client, message));
+                    using (Socket client = new(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+                    {
+                        await client.ConnectAsync(ipEndPoint);
+                        await maketcpClientAsync(client, message);
+
+                        message = "";
+                    }
+
                 }
 
             }
@@ -140,7 +144,7 @@ namespace ML_Client
                 {
                     Console.WriteLine(
                         $"Socket client received acknowledgment: \"{response}\"");
-                    //break;
+                    break;
                 }
             }
 

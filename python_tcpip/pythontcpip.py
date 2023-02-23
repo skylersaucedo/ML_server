@@ -236,10 +236,11 @@ def main():
     print("listening - server is listening for client")
 
     while True:
-
+        print('SERVER - waiting new connection!')
         conn, addr = s.accept()
         print('SERVER - new connection!')
           
+        print("SERVER - waiting message received!")
         data = conn.recv(1024)
         print("SERVER - message received!")
 
@@ -269,9 +270,13 @@ def main():
             #plot_defects(image_path, df, image_path)
             # transfer complete
             
+            #conn.send(outmessage.encode("utf-8"))
+            # done, do the next one...
+            #
+
             conn.send("<|ACK|>".encode("utf-8"))
 
-            return outmessage
+            # return outmessage
 
 
 if __name__ == "__main__":
