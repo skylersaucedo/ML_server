@@ -223,20 +223,25 @@ def defectDetector(image_path, mdl_path, defects_path):
 
 def main():
     
-    # make this listen for signal to make defects
+    # SERVER make this listen for signal to make defects
     #image_path = sys.argv[1]
     mdl_path =r'C:\Users\Administrator\Desktop\feb16-udpstuff\UNET_6100imgs_25e_32b__Jan22b.h5'
     defects_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\defect_list_thread.csv'
-    udp_ip = "127.0.0.1"
-    udp_port = 80
+    _ip = "127.0.0.1"
+    _port = 80
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((_ip, _port))
+    s.listen()
+    print("listening - server is listening for client")
+
     while True:
-        s.bind((udp_ip, udp_port))
 
-        data,addr = s.recvfrom(1024)
-        #print("message received!")
+        conn, addr = s.accept()
+        print('SERVER - new connection!')
+          
+        data = conn.recv(1024)
+        print("SERVER - message received!")
 
         if len(data) > 0:
             
@@ -247,12 +252,13 @@ def main():
             isNose = m[1]
 
             #image_path = r'C:\Users\Administrator\Desktop\feb16-udpstuff\thread_clean_warmup_gpu.jpg'
-            print('sample image path: ', image_path)
+            print('SERVER - sample image path: ', image_path)
+
 
             start = time.perf_counter()
 
             result, df = defectDetector(image_path, mdl_path, defects_path)
-            s.close()
+            #s.close()
             
             num_defects = len(df)
 
@@ -261,6 +267,9 @@ def main():
             outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(num_defects) + ", path: " + image_path + " , nose: " + str(isNose)
             
             #plot_defects(image_path, df, image_path)
+            # transfer complete
+            
+            conn.send("<|ACK|>".encode("utf-8"))
 
             return outmessage
 
