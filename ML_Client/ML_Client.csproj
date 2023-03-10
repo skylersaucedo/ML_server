@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ML_server\ML_Server.csproj" />
+    <ProjectReference Include="..\python_tcpip\ML_Server.csproj" />
   </ItemGroup>
 
 </Project>

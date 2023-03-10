@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
-// ---- USE THIS TO OPEN PROCESS THAT IS A TCP-IP LISTENER IN PYTHON
+// ---- USE THIS TO OPEN PROCESS, A TCP-IP LISTENER IN PYTHON WITH DEFECT DETECTOR
 
 
-public class Program
+public class Server
 {
     public static void makeProcess()
     {
@@ -14,10 +14,6 @@ public class Program
 
         // Provide script 
         var script = "C:\\Users\\Administrator\\source\\repos\\ML_server\\python_tcpip\\pythontcpip.py";
-        //var defects = ML.defectsThreadCSVpath;
-        //var mlModelPath = ML.mlModelPath;
-
-        //if (isNose) { defects = ML.defectsNoseCSVpath; }
 
         Console.WriteLine("PREDICTION SEQUENCE - sending test image to python prediction...");
 

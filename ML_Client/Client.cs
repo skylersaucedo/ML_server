@@ -1,4 +1,4 @@
-﻿using ML_server;
+﻿//using ML_Server;
 using System;
 using System.Diagnostics.SymbolStore;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ML_Client
 {
-    public class UDPClient
+    public class Client
     {
         // updated with tcp-ip patterns
 
@@ -82,72 +82,5 @@ namespace ML_Client
                 if (response == "<|ACK|>") { break; }
             }
         }
-
-        //public static void makeUDPClient()
-        //{
-        //    // NO LONGER USING.
-        //    Console.WriteLine("Client side!");
-
-        //    Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-        //    IPAddress broadcast = IPAddress.Parse("127.0.0.1");
-        //    //Console.WriteLine("Enter message to send to broadcast address");
-        //    //var message = Console.ReadLine();
-
-        //    string folderpath = "C:\\Users\\Administrator\\Desktop\\feb16-udpstuff";
-
-        //    string imgwarmuppath = Path.Combine(folderpath, "thread_clean_warmup_gpu.jpg");
-        //    string imgpath = Path.Combine(folderpath, "tempImage.jpg");
-        //    string imgpathbug = Path.Combine(folderpath, "thread_bug.jpg");
-        //    string imgpathscratches = Path.Combine(folderpath, "thread_scratches_dents.jpg");
-
-        //    string[] imagepaths = {
-        //        imgpathscratches, imgpath, imgpathbug,
-        //        imgpathscratches, imgpathbug, imgwarmuppath,
-        //        imgpath, imgpathbug, imgpathscratches
-        //    };
-
-        //    string message = "";
-        //    int cnt = 0;
-
-        //    bool isNose = true;
-
-        //    foreach (string img in imagepaths)
-        //    {
-        //        message = img+"*" + isNose.ToString();
-        //        //message = img;
-
-        //        Console.WriteLine($"sending message:  {img}");
-        //        System.Threading.Thread.Sleep(5000);
-
-        //        while (message != string.Empty && message != null)
-        //        {
-        //            byte[] sendbuf = Encoding.ASCII.GetBytes(message);
-        //            IPEndPoint ep = new IPEndPoint(broadcast, 80);
-
-        //            s.SendTo(sendbuf, ep);
-
-        //            Console.WriteLine("Message sent to the broadcast address");
-
-        //            //message = Console.ReadLine();
-
-        //            message = string.Empty;
-
-        //            cnt++;
-        //        }
-
-        //        if (cnt == 0)
-        //        {
-        //            // add wait here
-        //            System.Threading.Thread.Sleep(40000);
-        //        }
-
-        //        else
-        //        {
-        //            System.Threading.Thread.Sleep(30000);
-        //        }
-        //    }
-        //}
-
     }
 }

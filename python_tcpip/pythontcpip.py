@@ -20,6 +20,8 @@ Using model: UNET_256x256_20nov_2022_final.hdf5
       - each model makes a prediction, then we combine predictions to get highest mIOU peroformance.
 12/29 - Ensembeled UNET models greatly improved defect detector performance. Need to reduce run time, now it is 30-45 seconds. 
 01/30 - Added DBSCAN, removed object det algo, 12.5 second prediction time.
+2/28 - Added TCP-IP socket routine to create ML Server. This instance is ran on a separate thread and waits for an image path to run the detector.
+3/3 - Added garbage collection to make per defect faster. currently very fast 3 -12 seconds, then gets slower...
 """
 #ROOT  = r"C:\Users\TSI\Desktop"
 
@@ -35,6 +37,11 @@ import math
 import sys
 import socket
 from sklearn.cluster import DBSCAN
+import gc
+from numba import cuda
+
+#gpus = tf.config.experimental.list_physical_devices('GPU')
+#tf.config.experimental.set_memory_growth(gpus[0], True)
 
 def reshape_split(image: np.ndarray, kernel_size: tuple):
     h,w,c = image.shape
@@ -116,13 +123,11 @@ def plot_defects(image_path, df_defects, title_label):
     plt.title('Original Image'), plt.xticks([]), plt.yticks([])
     plt.subplot(212),plt.imshow(img_c)
     plt.title(title_label), plt.xticks([]), plt.yticks([])
-
     plt.show()
 
-    #output_path = 'C:\\Users\\TSI\\Desktop\\predictions_dec18.png'
-    output_path = '\predictions_dec29.png'
+    time_str = time.strftime("%Y%m%d%H%M%S")
 
-    #output_path =  'C:\\Users\\endle\\Desktop\\dl - thread\\output_prediction\\bounding_final_dec10.png'
+    output_path =  '\\predictions'+ time_str+'.png' #'\predictions.png'
     cv2.imwrite(output_path, img_c)
     
 def make_label(n):
@@ -131,7 +136,7 @@ def make_label(n):
     return label[n]
 
     
-def defectDetector(image_path, mdl_path, defects_path):
+def defectDetector(image_path, mdl, defects_path):
     """
     1/13/23 - most current method.
     1/26/23 - adding dbscan clustering technique to reduce number of defects
@@ -145,8 +150,6 @@ def defectDetector(image_path, mdl_path, defects_path):
     s = 256
     k = (s,s)
     n = len(labels)    
-
-    mdl = tf.keras.models.load_model(mdl_path, compile=False)    
     
     x = cv2.imread(image_path)
     img = cv2.cvtColor(x,cv2.COLOR_BGR2RGB)    
@@ -157,7 +160,7 @@ def defectDetector(image_path, mdl_path, defects_path):
     
     for i in range(a):
         
-        x = array[i][:][:][:][:] / 255 # (64, 256, 256, 3)
+        x = array[i][:][:][:][:] / 255 # (64, 256, 256, 3) , normalize
                 
         y = mdl.predict_on_batch(x) # (64, 256, 256, 7)
                         
@@ -184,8 +187,8 @@ def defectDetector(image_path, mdl_path, defects_path):
     # --------- adding DBscan here
 
     bol_clustering = True
-    bol_limit_size = False
-    max_n_defects = 25 # only show 25 top defects
+    bol_limit_size = True
+    max_n_defects = 25 # 175 # only show 25 top defects
 
     if bol_clustering:
         
@@ -224,14 +227,27 @@ def defectDetector(image_path, mdl_path, defects_path):
 def main():
     
     # SERVER make this listen for signal to make defects
+    mdl_path = sys.argv[1]
+    csvs_path = sys.argv[2]
+    warmup_image_path = sys.argv[3]
 
-    mdl_path =r'C:\Users\Administrator\Desktop\feb16-udpstuff\UNET_6100imgs_25e_32b__Jan22b.h5'
-    csvs_path = r'C:\Users\Administrator\Desktop\feb23csvs'
-    _ip = "127.0.0.1"
-    _port = 80
+    _ip = "127.0.0.1" #"127.0.0.1"
+    _port = 80 # 80
+
+    # load model
+    mdl = tf.keras.models.load_model(mdl_path, compile=False)    
+
+    # GPU warm up routine
+
+    time_str = time.strftime("%Y%m%d%H%M%S")
+    defects_path = os.path.join(csvs_path, time_str + "defectsWARMUP.csv")
+    result, df = defectDetector(warmup_image_path, mdl, defects_path)
+
+    # now open ports and listen for new 
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((_ip, _port))
+    s.settimeout(None)
     s.listen()
 
     while True:
@@ -249,11 +265,11 @@ def main():
             start = time.perf_counter()
             time_str = time.strftime("%Y%m%d%H%M%S")
             defects_path = os.path.join(csvs_path, time_str + "defects.csv")
-            result, df = defectDetector(image_path, mdl_path, defects_path)
+            result, df = defectDetector(image_path, mdl, defects_path)
             n_defects = len(df)
             stop = time.perf_counter()
             delta = stop - start
-            outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(n_defects) + ", path: " + image_path + " , nose: " + str(isNose) + " , csv: " + defects_path
+            outmessage = " *elapsed time: " + str(delta) + ", num defects: " + str(n_defects) + ", path: " + image_path + " , nose: " + str(isNose) + " , csv- " + defects_path + "-" + "fluffy"
             
             #plot_defects(image_path, df, image_path)
 
@@ -261,6 +277,12 @@ def main():
                        
             conn.send(outmessage.encode("utf-8"))
             conn.send("<|ACK|>".encode("utf-8"))
+
+            # clean up vram and ram?
+
+            tf.keras.backend.clear_session()
+            gc.collect()
+            #cuda.close()
 
 if __name__ == "__main__":
     sys.exit(main())
